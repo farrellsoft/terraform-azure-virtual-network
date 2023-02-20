@@ -48,3 +48,12 @@ variable ddos_protection_plan_id {
   description = "The ID of the DDoS protection plan associated with the virtual network."
   default     = null
 }
+
+variable subnets {
+  type            = map(object({
+    purpose           = string
+    address_prefixes  = list(string)
+  }))
+  description     = "A map of subnets to create in the virtual network."
+  default         = {}
+}

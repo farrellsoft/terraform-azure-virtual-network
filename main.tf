@@ -22,3 +22,15 @@ resource azurerm_virtual_network this {
     }
   }
 }
+
+module "subnets" {
+  source    = "app.terraform.io/Farrellsoft/subnet/azure"
+  version   = "0.0.3"
+  for_each  = var.subnets
+
+  application           = var.application
+  purpose               = each.value.purpose
+  resource_group_name   = var.resource_group_name
+  virtual_network_name  = azurerm_virtual_network.this.name
+  address_prefixes      = each.value.address_prefixes
+}
