@@ -1,8 +1,4 @@
 
-provider azurerm {
-  features {}
-}
-
 module "resource-naming" {
   source  = "app.terraform.io/Farrellsoft/resource-naming/azure"
   version = "0.0.9"
