@@ -53,6 +53,10 @@ variable subnets {
   type            = map(object({
     purpose           = string
     address_prefixes  = list(string)
+    delegations       = optional(map(object({
+      service_name        = string
+      actions             = optional(list(string), [])
+    })), {})
   }))
   description     = "A map of subnets to create in the virtual network."
   default         = {}
