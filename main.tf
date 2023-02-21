@@ -1,4 +1,8 @@
 
+provider "azurerm" {
+  features {}
+}
+
 module "resource-naming" {
   source  = "app.terraform.io/Farrellsoft/resource-naming/azure"
   version = "0.0.9"
@@ -25,7 +29,7 @@ resource azurerm_virtual_network this {
 
 module "subnets" {
   source    = "app.terraform.io/Farrellsoft/subnet/azure"
-  version   = "0.0.3"
+  version   = "0.0.5"
   for_each  = var.subnets
 
   application           = var.application
@@ -33,4 +37,12 @@ module "subnets" {
   resource_group_name   = var.resource_group_name
   virtual_network_name  = azurerm_virtual_network.this.name
   address_prefixes      = each.value.address_prefixes
+
+  ## need to remove this hard coding
+  delegations = {
+    functionApp = {
+      service_name    = "Microsoft.Web/serverFarms"
+      actions         = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 }
