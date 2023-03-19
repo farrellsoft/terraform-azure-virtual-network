@@ -57,6 +57,8 @@ variable subnets {
       service_name        = string
       actions             = optional(list(string), [])
     })), {})
+    enable_private_endpoint_policies              = optional(bool, true)
+    enable_private_link_service_network_policies  = optional(bool, true)
   }))
   description     = "A map of subnets to create in the virtual network."
   default         = {}
