@@ -9,8 +9,8 @@ output id {
 }
 #
 output subnets {
-  value             = { for k,v in module.subnets : k => {
-    id    = v.id
-    name  = v.name
-  } }
+  value             = [for subnet in jsondecode(azapi_resource.this.output).properties.subnets : {
+    id    = subnet.id
+    name  = subnet.name
+  }]
 }

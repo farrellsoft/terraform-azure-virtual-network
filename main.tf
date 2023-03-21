@@ -2,6 +2,7 @@ terraform {
   required_providers {
     azapi = {
       source = "Azure/azapi"
+      version = ">=1.4.0"
     }
   }
 }
@@ -18,6 +19,21 @@ module "resource-naming" {
 
 locals {
   resource_group_id     = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${var.resource_group_name}"
+
+  subnets = [for key,value in var.subnets : {
+    name        = "snet-${lower(var.application)}-${lower(value.purpose)}"
+    properties  = {
+      addressPrefixes       = value.address_prefixes
+      delegations           = [for dkey,value in value.delegations: {
+        name                = dkey
+        properties          = {
+          serviceName      = value.service_name
+        }
+      }]
+      privateEndpointNetworkPolicies      = value.enable_private_endpoint_policies ? "Enabled" : "Disabled"
+      privateLinkServiceNetworkPolicies   = value.enable_private_link_service_network_policies ? "Enabled" : "Disabled"
+    }
+  }]
 }
 
 resource azapi_resource this {
@@ -31,20 +47,9 @@ resource azapi_resource this {
       addressSpace = {
         addressPrefixes = var.address_space
       }
+      subnets = local.subnets
     }
   })
-}
 
-module "subnets" {
-  source      = "../terraform-azure-subnet"
-  for_each    = var.subnets
-
-  application                                   = var.application
-  purpose                                       = each.value.purpose
-  resource_group_name                           = var.resource_group_name
-  virtual_network_name                          = azapi_resource.this.name
-  address_prefixes                              = each.value.address_prefixes
-  delegations                                   = each.value.delegations
-  enable_private_endpoint_policies              = each.value.enable_private_endpoint_policies
-  enable_private_link_service_network_policies  = each.value.enable_private_link_service_network_policies
+  response_export_values = ["properties"]
 }
